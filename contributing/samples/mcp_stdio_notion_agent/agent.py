@@ -23,10 +23,12 @@ from google.adk.tools.mcp_tool.mcp_toolset import StdioServerParameters
 load_dotenv()
 
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
-NOTION_HEADERS = json.dumps({
-    "Authorization": f"Bearer {NOTION_API_KEY}",
-    "Notion-Version": "2022-06-28",
-})
+NOTION_HEADERS = json.dumps(
+    {
+        "Authorization": f"Bearer {NOTION_API_KEY}",
+        "Notion-Version": "2022-06-28",
+    }
+)
 
 root_agent = LlmAgent(
     model="gemini-2.0-flash",

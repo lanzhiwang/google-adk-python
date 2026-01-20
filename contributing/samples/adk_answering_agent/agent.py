@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from adk_answering_agent.gemini_assistant.agent import root_agent as gemini_assistant_agent
+from adk_answering_agent.gemini_assistant.agent import (
+    root_agent as gemini_assistant_agent,
+)
 from adk_answering_agent.settings import BOT_RESPONSE_LABEL
 from adk_answering_agent.settings import IS_INTERACTIVE
 from adk_answering_agent.settings import OWNER
@@ -27,14 +29,14 @@ from google.adk.tools.agent_tool import AgentTool
 from google.adk.tools.vertex_ai_search_tool import VertexAiSearchTool
 
 if IS_INTERACTIVE:
-  APPROVAL_INSTRUCTION = (
-      "Ask for user approval or confirmation for adding the comment."
-  )
+    APPROVAL_INSTRUCTION = (
+        "Ask for user approval or confirmation for adding the comment."
+    )
 else:
-  APPROVAL_INSTRUCTION = (
-      "**Do not** wait or ask for user approval or confirmation for adding the"
-      " comment."
-  )
+    APPROVAL_INSTRUCTION = (
+        "**Do not** wait or ask for user approval or confirmation for adding the"
+        " comment."
+    )
 
 
 root_agent = Agent(

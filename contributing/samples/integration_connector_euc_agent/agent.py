@@ -19,7 +19,9 @@ from google.adk import Agent
 from google.adk.auth.auth_credential import AuthCredential
 from google.adk.auth.auth_credential import AuthCredentialTypes
 from google.adk.auth.auth_credential import OAuth2Auth
-from google.adk.tools.application_integration_tool.application_integration_toolset import ApplicationIntegrationToolset
+from google.adk.tools.application_integration_tool.application_integration_toolset import (
+    ApplicationIntegrationToolset,
+)
 from google.adk.tools.openapi_tool.auth.auth_helpers import dict_to_auth_scheme
 from google.genai import types
 
@@ -41,8 +43,7 @@ oauth2_data_google_cloud = {
             "tokenUrl": "https://oauth2.googleapis.com/token",
             "scopes": {
                 "https://www.googleapis.com/auth/cloud-platform": (
-                    "View and manage your data across Google Cloud Platform"
-                    " services"
+                    "View and manage your data across Google Cloud Platform" " services"
                 ),
                 "https://www.googleapis.com/auth/calendar.readonly": (
                     "View your calendars"

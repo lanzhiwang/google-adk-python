@@ -21,8 +21,6 @@ root_agent = Agent(
     instruction="You are a helpful assistant",
     # Add Toolbox tools to ADK agent
     tools=[
-        ToolboxToolset(
-            server_url="http://127.0.0.1:5000", toolset_name="my-toolset"
-        )
+        ToolboxToolset(server_url="http://127.0.0.1:5000", toolset_name="my-toolset")
     ],
 )

@@ -81,169 +81,161 @@ APPROVAL_INSTRUCTION = (
     " labels for the issue, do not label it."
 )
 if IS_INTERACTIVE:
-  APPROVAL_INSTRUCTION = "Only label them when the user approves the labeling!"
+    APPROVAL_INSTRUCTION = "Only label them when the user approves the labeling!"
 
 
 def list_untriaged_issues(issue_count: int) -> dict[str, Any]:
-  """List open issues that need triaging.
+    """List open issues that need triaging.
 
-  Returns issues that need any of the following actions:
-  1. Issues without component labels (need labeling + type setting)
-  2. Issues with 'planned' label but no assignee (need owner assignment)
+    Returns issues that need any of the following actions:
+    1. Issues without component labels (need labeling + type setting)
+    2. Issues with 'planned' label but no assignee (need owner assignment)
 
-  Args:
-    issue_count: number of issues to return
+    Args:
+      issue_count: number of issues to return
 
-  Returns:
-    The status of this request, with a list of issues when successful.
-    Each issue includes flags indicating what actions are needed.
-  """
-  url = f"{GITHUB_BASE_URL}/search/issues"
-  query = f"repo:{OWNER}/{REPO} is:open is:issue"
-  params = {
-      "q": query,
-      "sort": "created",
-      "order": "desc",
-      "per_page": 100,  # Fetch more to filter
-      "page": 1,
-  }
+    Returns:
+      The status of this request, with a list of issues when successful.
+      Each issue includes flags indicating what actions are needed.
+    """
+    url = f"{GITHUB_BASE_URL}/search/issues"
+    query = f"repo:{OWNER}/{REPO} is:open is:issue"
+    params = {
+        "q": query,
+        "sort": "created",
+        "order": "desc",
+        "per_page": 100,  # Fetch more to filter
+        "page": 1,
+    }
 
-  try:
-    response = get_request(url, params)
-  except requests.exceptions.RequestException as e:
-    return error_response(f"Error: {e}")
-  issues = response.get("items", [])
+    try:
+        response = get_request(url, params)
+    except requests.exceptions.RequestException as e:
+        return error_response(f"Error: {e}")
+    issues = response.get("items", [])
 
-  component_labels = set(LABEL_TO_OWNER.keys())
-  untriaged_issues = []
-  for issue in issues:
-    issue_labels = {label["name"] for label in issue.get("labels", [])}
-    assignees = issue.get("assignees", [])
+    component_labels = set(LABEL_TO_OWNER.keys())
+    untriaged_issues = []
+    for issue in issues:
+        issue_labels = {label["name"] for label in issue.get("labels", [])}
+        assignees = issue.get("assignees", [])
 
-    existing_component_labels = issue_labels & component_labels
-    has_component = bool(existing_component_labels)
-    has_planned = "planned" in issue_labels
+        existing_component_labels = issue_labels & component_labels
+        has_component = bool(existing_component_labels)
+        has_planned = "planned" in issue_labels
 
-    # Determine what actions are needed
-    needs_component_label = not has_component
-    needs_owner = has_planned and not assignees
+        # Determine what actions are needed
+        needs_component_label = not has_component
+        needs_owner = has_planned and not assignees
 
-    # Include issue if it needs any action
-    if needs_component_label or needs_owner:
-      issue["has_planned_label"] = has_planned
-      issue["has_component_label"] = has_component
-      issue["existing_component_label"] = (
-          list(existing_component_labels)[0]
-          if existing_component_labels
-          else None
-      )
-      issue["needs_component_label"] = needs_component_label
-      issue["needs_owner"] = needs_owner
-      untriaged_issues.append(issue)
-      if len(untriaged_issues) >= issue_count:
-        break
-  return {"status": "success", "issues": untriaged_issues}
+        # Include issue if it needs any action
+        if needs_component_label or needs_owner:
+            issue["has_planned_label"] = has_planned
+            issue["has_component_label"] = has_component
+            issue["existing_component_label"] = (
+                list(existing_component_labels)[0]
+                if existing_component_labels
+                else None
+            )
+            issue["needs_component_label"] = needs_component_label
+            issue["needs_owner"] = needs_owner
+            untriaged_issues.append(issue)
+            if len(untriaged_issues) >= issue_count:
+                break
+    return {"status": "success", "issues": untriaged_issues}
 
 
 def add_label_to_issue(issue_number: int, label: str) -> dict[str, Any]:
-  """Add the specified component label to the given issue number.
+    """Add the specified component label to the given issue number.
 
-  Args:
-    issue_number: issue number of the GitHub issue.
-    label: label to assign
+    Args:
+      issue_number: issue number of the GitHub issue.
+      label: label to assign
 
-  Returns:
-    The status of this request, with the applied label when successful.
-  """
-  print(f"Attempting to add label '{label}' to issue #{issue_number}")
-  if label not in LABEL_TO_OWNER:
-    return error_response(
-        f"Error: Label '{label}' is not an allowed label. Will not apply."
-    )
+    Returns:
+      The status of this request, with the applied label when successful.
+    """
+    print(f"Attempting to add label '{label}' to issue #{issue_number}")
+    if label not in LABEL_TO_OWNER:
+        return error_response(
+            f"Error: Label '{label}' is not an allowed label. Will not apply."
+        )
 
-  label_url = (
-      f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}/labels"
-  )
-  label_payload = [label]
+    label_url = f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}/labels"
+    label_payload = [label]
 
-  try:
-    response = post_request(label_url, label_payload)
-  except requests.exceptions.RequestException as e:
-    return error_response(f"Error: {e}")
+    try:
+        response = post_request(label_url, label_payload)
+    except requests.exceptions.RequestException as e:
+        return error_response(f"Error: {e}")
 
-  return {
-      "status": "success",
-      "message": response,
-      "applied_label": label,
-  }
+    return {
+        "status": "success",
+        "message": response,
+        "applied_label": label,
+    }
 
 
 def add_owner_to_issue(issue_number: int, label: str) -> dict[str, Any]:
-  """Assign an owner to the issue based on the component label.
+    """Assign an owner to the issue based on the component label.
 
-  This should only be called for issues that have the 'planned' label.
+    This should only be called for issues that have the 'planned' label.
 
-  Args:
-    issue_number: issue number of the GitHub issue.
-    label: component label that determines the owner to assign
+    Args:
+      issue_number: issue number of the GitHub issue.
+      label: component label that determines the owner to assign
 
-  Returns:
-    The status of this request, with the assigned owner when successful.
-  """
-  print(
-      f"Attempting to assign owner for label '{label}' to issue #{issue_number}"
-  )
-  if label not in LABEL_TO_OWNER:
-    return error_response(
-        f"Error: Label '{label}' is not a valid component label."
+    Returns:
+      The status of this request, with the assigned owner when successful.
+    """
+    print(f"Attempting to assign owner for label '{label}' to issue #{issue_number}")
+    if label not in LABEL_TO_OWNER:
+        return error_response(f"Error: Label '{label}' is not a valid component label.")
+
+    owner = LABEL_TO_OWNER.get(label, None)
+    if not owner:
+        return {
+            "status": "warning",
+            "message": f"Label '{label}' does not have an owner. Will not assign.",
+        }
+
+    assignee_url = (
+        f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}/assignees"
     )
+    assignee_payload = {"assignees": [owner]}
 
-  owner = LABEL_TO_OWNER.get(label, None)
-  if not owner:
+    try:
+        response = post_request(assignee_url, assignee_payload)
+    except requests.exceptions.RequestException as e:
+        return error_response(f"Error: {e}")
+
     return {
-        "status": "warning",
-        "message": f"Label '{label}' does not have an owner. Will not assign.",
+        "status": "success",
+        "message": response,
+        "assigned_owner": owner,
     }
-
-  assignee_url = (
-      f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}/assignees"
-  )
-  assignee_payload = {"assignees": [owner]}
-
-  try:
-    response = post_request(assignee_url, assignee_payload)
-  except requests.exceptions.RequestException as e:
-    return error_response(f"Error: {e}")
-
-  return {
-      "status": "success",
-      "message": response,
-      "assigned_owner": owner,
-  }
 
 
 def change_issue_type(issue_number: int, issue_type: str) -> dict[str, Any]:
-  """Change the issue type of the given issue number.
+    """Change the issue type of the given issue number.
 
-  Args:
-    issue_number: issue number of the GitHub issue, in string format.
-    issue_type: issue type to assign
+    Args:
+      issue_number: issue number of the GitHub issue, in string format.
+      issue_type: issue type to assign
 
-  Returns:
-    The the status of this request, with the applied issue type when successful.
-  """
-  print(
-      f"Attempting to change issue type '{issue_type}' to issue #{issue_number}"
-  )
-  url = f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}"
-  payload = {"type": issue_type}
+    Returns:
+      The the status of this request, with the applied issue type when successful.
+    """
+    print(f"Attempting to change issue type '{issue_type}' to issue #{issue_number}")
+    url = f"{GITHUB_BASE_URL}/repos/{OWNER}/{REPO}/issues/{issue_number}"
+    payload = {"type": issue_type}
 
-  try:
-    response = patch_request(url, payload)
-  except requests.exceptions.RequestException as e:
-    return error_response(f"Error: {e}")
+    try:
+        response = patch_request(url, payload)
+    except requests.exceptions.RequestException as e:
+        return error_response(f"Error: {e}")
 
-  return {"status": "success", "message": response, "issue_type": issue_type}
+    return {"status": "success", "message": response, "issue_type": issue_type}
 
 
 root_agent = Agent(

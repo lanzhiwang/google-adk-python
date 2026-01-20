@@ -23,8 +23,8 @@ from google.genai import types
 
 # --- Roll Die Sub-Agent ---
 def roll_die(sides: int) -> int:
-  """Roll a die and return the rolled result."""
-  return random.randint(1, sides)
+    """Roll a die and return the rolled result."""
+    return random.randint(1, sides)
 
 
 roll_agent = Agent(
@@ -46,43 +46,45 @@ roll_agent = Agent(
 )
 
 
-example_tool = ExampleTool([
-    {
-        "input": {
-            "role": "user",
-            "parts": [{"text": "Roll a 6-sided die."}],
-        },
-        "output": [
-            {"role": "model", "parts": [{"text": "I rolled a 4 for you."}]}
-        ],
-    },
-    {
-        "input": {
-            "role": "user",
-            "parts": [{"text": "Is 7 a prime number?"}],
-        },
-        "output": [{
-            "role": "model",
-            "parts": [{"text": "Yes, 7 is a prime number."}],
-        }],
-    },
-    {
-        "input": {
-            "role": "user",
-            "parts": [{"text": "Roll a 10-sided die and check if it's prime."}],
-        },
-        "output": [
-            {
-                "role": "model",
-                "parts": [{"text": "I rolled an 8 for you."}],
+example_tool = ExampleTool(
+    [
+        {
+            "input": {
+                "role": "user",
+                "parts": [{"text": "Roll a 6-sided die."}],
             },
-            {
-                "role": "model",
-                "parts": [{"text": "8 is not a prime number."}],
+            "output": [{"role": "model", "parts": [{"text": "I rolled a 4 for you."}]}],
+        },
+        {
+            "input": {
+                "role": "user",
+                "parts": [{"text": "Is 7 a prime number?"}],
             },
-        ],
-    },
-])
+            "output": [
+                {
+                    "role": "model",
+                    "parts": [{"text": "Yes, 7 is a prime number."}],
+                }
+            ],
+        },
+        {
+            "input": {
+                "role": "user",
+                "parts": [{"text": "Roll a 10-sided die and check if it's prime."}],
+            },
+            "output": [
+                {
+                    "role": "model",
+                    "parts": [{"text": "I rolled an 8 for you."}],
+                },
+                {
+                    "role": "model",
+                    "parts": [{"text": "8 is not a prime number."}],
+                },
+            ],
+        },
+    ]
+)
 
 prime_agent = RemoteA2aAgent(
     name="prime_agent",

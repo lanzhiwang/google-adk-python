@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.adk.tools.application_integration_tool.application_integration_toolset import ApplicationIntegrationToolset
+from google.adk.tools.application_integration_tool.application_integration_toolset import (
+    ApplicationIntegrationToolset,
+)
 
 jira_tool = ApplicationIntegrationToolset(
     project="your-gcp-project-id",  # replace with your GCP project ID
