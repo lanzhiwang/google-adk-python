@@ -30,31 +30,31 @@ CREDENTIALS_TYPE = None
 
 
 if CREDENTIALS_TYPE == AuthCredentialTypes.OAUTH2:
-  # Initialize the tools to do interactive OAuth
-  # The environment variables OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET
-  # must be set
-  credentials_config = SpannerCredentialsConfig(
-      client_id=os.getenv("OAUTH_CLIENT_ID"),
-      client_secret=os.getenv("OAUTH_CLIENT_SECRET"),
-      scopes=[
-          "https://www.googleapis.com/auth/spanner.admin",
-          "https://www.googleapis.com/auth/spanner.data",
-      ],
-  )
+    # Initialize the tools to do interactive OAuth
+    # The environment variables OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET
+    # must be set
+    credentials_config = SpannerCredentialsConfig(
+        client_id=os.getenv("OAUTH_CLIENT_ID"),
+        client_secret=os.getenv("OAUTH_CLIENT_SECRET"),
+        scopes=[
+            "https://www.googleapis.com/auth/spanner.admin",
+            "https://www.googleapis.com/auth/spanner.data",
+        ],
+    )
 elif CREDENTIALS_TYPE == AuthCredentialTypes.SERVICE_ACCOUNT:
-  # Initialize the tools to use the credentials in the service account key.
-  # If this flow is enabled, make sure to replace the file path with your own
-  # service account key file
-  # https://cloud.google.com/iam/docs/service-account-creds#user-managed-keys
-  creds, _ = google.auth.load_credentials_from_file("service_account_key.json")
-  credentials_config = SpannerCredentialsConfig(credentials=creds)
+    # Initialize the tools to use the credentials in the service account key.
+    # If this flow is enabled, make sure to replace the file path with your own
+    # service account key file
+    # https://cloud.google.com/iam/docs/service-account-creds#user-managed-keys
+    creds, _ = google.auth.load_credentials_from_file("service_account_key.json")
+    credentials_config = SpannerCredentialsConfig(credentials=creds)
 else:
-  # Initialize the tools to use the application default credentials.
-  # https://cloud.google.com/docs/authentication/provide-credentials-adc
-  application_default_credentials, _ = google.auth.default()
-  credentials_config = SpannerCredentialsConfig(
-      credentials=application_default_credentials
-  )
+    # Initialize the tools to use the application default credentials.
+    # https://cloud.google.com/docs/authentication/provide-credentials-adc
+    application_default_credentials, _ = google.auth.default()
+    credentials_config = SpannerCredentialsConfig(
+        credentials=application_default_credentials
+    )
 
 # Follow the instructions in README.md to set up the example Spanner database.
 # Replace the following settings with your specific Spanner database.
@@ -99,9 +99,7 @@ spanner_toolset = SpannerToolset(
 root_agent = LlmAgent(
     model="gemini-2.5-flash",
     name="spanner_knowledge_base_agent",
-    description=(
-        "Agent to answer questions about product-specific recommendations."
-    ),
+    description=("Agent to answer questions about product-specific recommendations."),
     instruction="""
     You are a helpful assistant that answers user questions about product-specific recommendations.
     1. Always use the `vector_store_similarity_search` tool to find information.

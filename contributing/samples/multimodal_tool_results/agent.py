@@ -14,7 +14,9 @@
 
 from google.adk.agents import LlmAgent
 from google.adk.apps.app import App
-from google.adk.plugins.multimodal_tool_results_plugin import MultimodalToolResultsPlugin
+from google.adk.plugins.multimodal_tool_results_plugin import (
+    MultimodalToolResultsPlugin,
+)
 from google.genai import types
 
 APP_NAME = "multimodal_tool_results"
@@ -22,7 +24,7 @@ USER_ID = "test_user"
 
 
 def get_image():
-  return [types.Part.from_uri(file_uri="gs://replace_with_your_image_uri")]
+    return [types.Part.from_uri(file_uri="gs://replace_with_your_image_uri")]
 
 
 root_agent = LlmAgent(

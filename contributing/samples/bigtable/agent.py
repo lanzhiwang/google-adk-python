@@ -29,31 +29,31 @@ CREDENTIALS_TYPE = AuthCredentialTypes.OAUTH2
 tool_settings = BigtableToolSettings()
 
 if CREDENTIALS_TYPE == AuthCredentialTypes.OAUTH2:
-  # Initialize the tools to do interactive OAuth
-  # The environment variables OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET
-  # must be set
-  credentials_config = BigtableCredentialsConfig(
-      client_id=os.getenv("OAUTH_CLIENT_ID"),
-      client_secret=os.getenv("OAUTH_CLIENT_SECRET"),
-      scopes=[
-          "https://www.googleapis.com/auth/bigtable.admin",
-          "https://www.googleapis.com/auth/bigtable.data",
-      ],
-  )
+    # Initialize the tools to do interactive OAuth
+    # The environment variables OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET
+    # must be set
+    credentials_config = BigtableCredentialsConfig(
+        client_id=os.getenv("OAUTH_CLIENT_ID"),
+        client_secret=os.getenv("OAUTH_CLIENT_SECRET"),
+        scopes=[
+            "https://www.googleapis.com/auth/bigtable.admin",
+            "https://www.googleapis.com/auth/bigtable.data",
+        ],
+    )
 elif CREDENTIALS_TYPE == AuthCredentialTypes.SERVICE_ACCOUNT:
-  # Initialize the tools to use the credentials in the service account key.
-  # If this flow is enabled, make sure to replace the file path with your own
-  # service account key file
-  # https://cloud.google.com/iam/docs/service-account-creds#user-managed-keys
-  creds, _ = google.auth.load_credentials_from_file("service_account_key.json")
-  credentials_config = BigtableCredentialsConfig(credentials=creds)
+    # Initialize the tools to use the credentials in the service account key.
+    # If this flow is enabled, make sure to replace the file path with your own
+    # service account key file
+    # https://cloud.google.com/iam/docs/service-account-creds#user-managed-keys
+    creds, _ = google.auth.load_credentials_from_file("service_account_key.json")
+    credentials_config = BigtableCredentialsConfig(credentials=creds)
 else:
-  # Initialize the tools to use the application default credentials.
-  # https://cloud.google.com/docs/authentication/provide-credentials-adc
-  application_default_credentials, _ = google.auth.default()
-  credentials_config = BigtableCredentialsConfig(
-      credentials=application_default_credentials
-  )
+    # Initialize the tools to use the application default credentials.
+    # https://cloud.google.com/docs/authentication/provide-credentials-adc
+    application_default_credentials, _ = google.auth.default()
+    credentials_config = BigtableCredentialsConfig(
+        credentials=application_default_credentials
+    )
 
 bigtable_toolset = BigtableToolset(
     credentials_config=credentials_config, bigtable_tool_settings=tool_settings

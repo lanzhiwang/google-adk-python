@@ -45,49 +45,49 @@ except Exception as e:
 
 
 def _load_font_file(font_url: str, font_filename: str) -> Optional[File]:
-  """Downloads a font file and returns it as a File object."""
-  try:
-    with urllib.request.urlopen(font_url) as response:
-      font_bytes = response.read()
-  except Exception as e:
-    print(f"Failed to download font: {e}")
-    return None
+    """Downloads a font file and returns it as a File object."""
+    try:
+        with urllib.request.urlopen(font_url) as response:
+            font_bytes = response.read()
+    except Exception as e:
+        print(f"Failed to download font: {e}")
+        return None
 
-  # Base64-encode the font content.
-  font_content = base64.b64encode(font_bytes).decode("utf-8")
-  return File(name=font_filename, content=font_content)
+    # Base64-encode the font content.
+    font_content = base64.b64encode(font_bytes).decode("utf-8")
+    return File(name=font_filename, content=font_content)
 
 
 class CustomCodeExecutor(VertexAiCodeExecutor):
-  """A Vertex AI code executor that automatically enables Japanese fonts."""
+    """A Vertex AI code executor that automatically enables Japanese fonts."""
 
-  @override
-  def execute_code(
-      self,
-      invocation_context: InvocationContext,
-      code_execution_input: CodeExecutionInput,
-  ) -> CodeExecutionResult:
-    font_url = "https://github.com/notofonts/noto-cjk/raw/refs/heads/main/google-fonts/NotoSerifJP%5Bwght%5D.ttf"
-    font_filename = "NotoSerifJP[wght].ttf"
-    font_file = _load_font_file(font_url, font_filename)
-    # If the font download fails, execute the original code without it.
-    if font_file is not None:
-      # Add the font file to the input files.
-      code_execution_input.input_files.append(font_file)
+    @override
+    def execute_code(
+        self,
+        invocation_context: InvocationContext,
+        code_execution_input: CodeExecutionInput,
+    ) -> CodeExecutionResult:
+        font_url = "https://github.com/notofonts/noto-cjk/raw/refs/heads/main/google-fonts/NotoSerifJP%5Bwght%5D.ttf"
+        font_filename = "NotoSerifJP[wght].ttf"
+        font_file = _load_font_file(font_url, font_filename)
+        # If the font download fails, execute the original code without it.
+        if font_file is not None:
+            # Add the font file to the input files.
+            code_execution_input.input_files.append(font_file)
 
-      # Prepend the font setup code to the user's code.
-      code_execution_input.code = (
-          f"{_FONT_SETUP_CODE}\n\n{code_execution_input.code}"
-      )
+            # Prepend the font setup code to the user's code.
+            code_execution_input.code = (
+                f"{_FONT_SETUP_CODE}\n\n{code_execution_input.code}"
+            )
 
-    # Execute the modified code.
-    return super().execute_code(invocation_context, code_execution_input)
+        # Execute the modified code.
+        return super().execute_code(invocation_context, code_execution_input)
 
 
 def base_system_instruction():
-  """Returns: data science agent system instruction."""
+    """Returns: data science agent system instruction."""
 
-  return """
+    return """
   # Guidelines
 
   **Objective:** Assist the user in achieving their data analysis goals within the context of a Python Colab notebook, **with emphasis on avoiding assumptions and ensuring accuracy.** Reaching that goal can involve multiple steps. When you need to generate code, you **don't** need to solve the goal in one go. Only generate the next step at a time.

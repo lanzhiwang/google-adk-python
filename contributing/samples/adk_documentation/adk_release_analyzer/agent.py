@@ -33,11 +33,9 @@ import os
 import sys
 from typing import Any
 
-SAMPLES_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..")
-)
+SAMPLES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if SAMPLES_DIR not in sys.path:
-  sys.path.append(SAMPLES_DIR)
+    sys.path.append(SAMPLES_DIR)
 
 from adk_documentation.settings import CODE_OWNER
 from adk_documentation.settings import CODE_REPO
@@ -64,15 +62,14 @@ from google.adk.tools.tool_context import ToolContext
 MAX_FILES_PER_GROUP = 5
 
 if IS_INTERACTIVE:
-  APPROVAL_INSTRUCTION = (
-      "Ask for user approval or confirmation for creating or updating the"
-      " issue."
-  )
+    APPROVAL_INSTRUCTION = (
+        "Ask for user approval or confirmation for creating or updating the" " issue."
+    )
 else:
-  APPROVAL_INSTRUCTION = (
-      "**Do not** wait or ask for user approval or confirmation for creating"
-      " or updating the issue."
-  )
+    APPROVAL_INSTRUCTION = (
+        "**Do not** wait or ask for user approval or confirmation for creating"
+        " or updating the issue."
+    )
 
 
 # =============================================================================
@@ -81,39 +78,39 @@ else:
 
 
 def get_next_file_group(tool_context: ToolContext) -> dict[str, Any]:
-  """Gets the next group of files to analyze from the state.
+    """Gets the next group of files to analyze from the state.
 
-  This tool retrieves the next file group from state["file_groups"]
-  and increments the current_group_index.
+    This tool retrieves the next file group from state["file_groups"]
+    and increments the current_group_index.
 
-  Args:
-      tool_context: The tool context providing access to state.
+    Args:
+        tool_context: The tool context providing access to state.
 
-  Returns:
-      A dictionary with the next file group or indication that all groups
-      are processed.
-  """
-  file_groups = tool_context.state.get("file_groups", [])
-  current_index = tool_context.state.get("current_group_index", 0)
+    Returns:
+        A dictionary with the next file group or indication that all groups
+        are processed.
+    """
+    file_groups = tool_context.state.get("file_groups", [])
+    current_index = tool_context.state.get("current_group_index", 0)
 
-  if current_index >= len(file_groups):
+    if current_index >= len(file_groups):
+        return {
+            "status": "complete",
+            "message": "All file groups have been processed.",
+            "total_groups": len(file_groups),
+            "processed": current_index,
+        }
+
+    current_group = file_groups[current_index]
+    tool_context.state["current_group_index"] = current_index + 1
+
     return {
-        "status": "complete",
-        "message": "All file groups have been processed.",
+        "status": "success",
+        "group_index": current_index,
         "total_groups": len(file_groups),
-        "processed": current_index,
+        "remaining": len(file_groups) - current_index - 1,
+        "files": current_group,
     }
-
-  current_group = file_groups[current_index]
-  tool_context.state["current_group_index"] = current_index + 1
-
-  return {
-      "status": "success",
-      "group_index": current_index,
-      "total_groups": len(file_groups),
-      "remaining": len(file_groups) - current_index - 1,
-      "files": current_group,
-  }
 
 
 def save_group_recommendations(
@@ -121,56 +118,56 @@ def save_group_recommendations(
     group_index: int,
     recommendations: list[dict[str, str]],
 ) -> dict[str, Any]:
-  """Saves recommendations for a file group to state.
+    """Saves recommendations for a file group to state.
 
-  Args:
-      tool_context: The tool context providing access to state.
-      group_index: The index of the group these recommendations belong to.
-      recommendations: List of recommendation dicts with keys:
-          - summary: Brief summary of the change
-          - doc_file: Path to the doc file to update
-          - current_state: Current content in the doc
-          - proposed_change: What should be changed
-          - reasoning: Why this change is needed
-          - reference: Reference to the code file
+    Args:
+        tool_context: The tool context providing access to state.
+        group_index: The index of the group these recommendations belong to.
+        recommendations: List of recommendation dicts with keys:
+            - summary: Brief summary of the change
+            - doc_file: Path to the doc file to update
+            - current_state: Current content in the doc
+            - proposed_change: What should be changed
+            - reasoning: Why this change is needed
+            - reference: Reference to the code file
 
-  Returns:
-      A dictionary confirming the save operation.
-  """
-  all_recommendations = tool_context.state.get("recommendations", [])
-  all_recommendations.extend(recommendations)
-  tool_context.state["recommendations"] = all_recommendations
+    Returns:
+        A dictionary confirming the save operation.
+    """
+    all_recommendations = tool_context.state.get("recommendations", [])
+    all_recommendations.extend(recommendations)
+    tool_context.state["recommendations"] = all_recommendations
 
-  return {
-      "status": "success",
-      "group_index": group_index,
-      "new_recommendations": len(recommendations),
-      "total_recommendations": len(all_recommendations),
-  }
+    return {
+        "status": "success",
+        "group_index": group_index,
+        "new_recommendations": len(recommendations),
+        "total_recommendations": len(all_recommendations),
+    }
 
 
 def get_all_recommendations(tool_context: ToolContext) -> dict[str, Any]:
-  """Retrieves all accumulated recommendations from state.
+    """Retrieves all accumulated recommendations from state.
 
-  Args:
-      tool_context: The tool context providing access to state.
+    Args:
+        tool_context: The tool context providing access to state.
 
-  Returns:
-      A dictionary with all recommendations and metadata.
-  """
-  recommendations = tool_context.state.get("recommendations", [])
-  start_tag = tool_context.state.get("start_tag", "unknown")
-  end_tag = tool_context.state.get("end_tag", "unknown")
-  compare_url = tool_context.state.get("compare_url", "")
+    Returns:
+        A dictionary with all recommendations and metadata.
+    """
+    recommendations = tool_context.state.get("recommendations", [])
+    start_tag = tool_context.state.get("start_tag", "unknown")
+    end_tag = tool_context.state.get("end_tag", "unknown")
+    compare_url = tool_context.state.get("compare_url", "")
 
-  return {
-      "status": "success",
-      "start_tag": start_tag,
-      "end_tag": end_tag,
-      "compare_url": compare_url,
-      "total_recommendations": len(recommendations),
-      "recommendations": recommendations,
-  }
+    return {
+        "status": "success",
+        "start_tag": start_tag,
+        "end_tag": end_tag,
+        "compare_url": compare_url,
+        "total_recommendations": len(recommendations),
+        "recommendations": recommendations,
+    }
 
 
 def save_release_info(
@@ -182,66 +179,66 @@ def save_release_info(
     release_summary: str,
     all_changed_files: list[str],
 ) -> dict[str, Any]:
-  """Saves release info and file groups to state for processing.
+    """Saves release info and file groups to state for processing.
 
-  Args:
-      tool_context: The tool context providing access to state.
-      start_tag: The starting release tag.
-      end_tag: The ending release tag.
-      compare_url: The GitHub compare URL.
-      file_groups: List of file groups, where each group is a list of file
-          info dicts.
-      release_summary: A high-level summary of all changes in this release,
-          including the main themes (e.g., "new feature X", "refactoring Y",
-          "bug fixes in Z"). This helps individual analyzers understand the
-          bigger picture.
-      all_changed_files: List of all changed file paths (for cross-reference).
+    Args:
+        tool_context: The tool context providing access to state.
+        start_tag: The starting release tag.
+        end_tag: The ending release tag.
+        compare_url: The GitHub compare URL.
+        file_groups: List of file groups, where each group is a list of file
+            info dicts.
+        release_summary: A high-level summary of all changes in this release,
+            including the main themes (e.g., "new feature X", "refactoring Y",
+            "bug fixes in Z"). This helps individual analyzers understand the
+            bigger picture.
+        all_changed_files: List of all changed file paths (for cross-reference).
 
-  Returns:
-      A dictionary confirming the save operation.
-  """
-  tool_context.state["start_tag"] = start_tag
-  tool_context.state["end_tag"] = end_tag
-  tool_context.state["compare_url"] = compare_url
-  tool_context.state["file_groups"] = file_groups
-  tool_context.state["current_group_index"] = 0
-  tool_context.state["recommendations"] = []
-  tool_context.state["release_summary"] = release_summary
-  tool_context.state["all_changed_files"] = all_changed_files
+    Returns:
+        A dictionary confirming the save operation.
+    """
+    tool_context.state["start_tag"] = start_tag
+    tool_context.state["end_tag"] = end_tag
+    tool_context.state["compare_url"] = compare_url
+    tool_context.state["file_groups"] = file_groups
+    tool_context.state["current_group_index"] = 0
+    tool_context.state["recommendations"] = []
+    tool_context.state["release_summary"] = release_summary
+    tool_context.state["all_changed_files"] = all_changed_files
 
-  return {
-      "status": "success",
-      "start_tag": start_tag,
-      "end_tag": end_tag,
-      "total_groups": len(file_groups),
-      "total_files": sum(len(group) for group in file_groups),
-  }
+    return {
+        "status": "success",
+        "start_tag": start_tag,
+        "end_tag": end_tag,
+        "total_groups": len(file_groups),
+        "total_files": sum(len(group) for group in file_groups),
+    }
 
 
 def get_release_context(tool_context: ToolContext) -> dict[str, Any]:
-  """Gets the global release context for cross-group awareness.
+    """Gets the global release context for cross-group awareness.
 
-  This allows individual file group analyzers to understand:
-  - The overall theme of the release
-  - What other files were changed (for identifying related changes)
-  - What recommendations have already been made (to avoid duplicates)
+    This allows individual file group analyzers to understand:
+    - The overall theme of the release
+    - What other files were changed (for identifying related changes)
+    - What recommendations have already been made (to avoid duplicates)
 
-  Args:
-      tool_context: The tool context providing access to state.
+    Args:
+        tool_context: The tool context providing access to state.
 
-  Returns:
-      A dictionary with global release context.
-  """
-  return {
-      "status": "success",
-      "start_tag": tool_context.state.get("start_tag", "unknown"),
-      "end_tag": tool_context.state.get("end_tag", "unknown"),
-      "release_summary": tool_context.state.get("release_summary", ""),
-      "all_changed_files": tool_context.state.get("all_changed_files", []),
-      "existing_recommendations": tool_context.state.get("recommendations", []),
-      "current_group_index": tool_context.state.get("current_group_index", 0),
-      "total_groups": len(tool_context.state.get("file_groups", [])),
-  }
+    Returns:
+        A dictionary with global release context.
+    """
+    return {
+        "status": "success",
+        "start_tag": tool_context.state.get("start_tag", "unknown"),
+        "end_tag": tool_context.state.get("end_tag", "unknown"),
+        "release_summary": tool_context.state.get("release_summary", ""),
+        "all_changed_files": tool_context.state.get("all_changed_files", []),
+        "existing_recommendations": tool_context.state.get("recommendations", []),
+        "current_group_index": tool_context.state.get("current_group_index", 0),
+        "total_groups": len(tool_context.state.get("file_groups", [])),
+    }
 
 
 # =============================================================================
@@ -328,12 +325,12 @@ Provide a summary of:
 
 
 def file_analyzer_instruction(readonly_context: ReadonlyContext) -> str:
-  """Dynamic instruction that includes current state info."""
-  start_tag = readonly_context.state.get("start_tag", "unknown")
-  end_tag = readonly_context.state.get("end_tag", "unknown")
-  release_summary = readonly_context.state.get("release_summary", "")
+    """Dynamic instruction that includes current state info."""
+    start_tag = readonly_context.state.get("start_tag", "unknown")
+    end_tag = readonly_context.state.get("end_tag", "unknown")
+    release_summary = readonly_context.state.get("release_summary", "")
 
-  return f"""
+    return f"""
 # 1. Identity
 You are the File Group Analyzer, responsible for analyzing a group of changed
 files and finding related documentation that needs updating.
@@ -423,9 +420,7 @@ files and finding related documentation that needs updating.
 file_group_analyzer = Agent(
     model="gemini-2.5-pro",
     name="file_group_analyzer",
-    description=(
-        "Analyzes a group of changed files and generates recommendations."
-    ),
+    description=("Analyzes a group of changed files and generates recommendations."),
     instruction=file_analyzer_instruction,
     tools=[
         get_next_file_group,
@@ -454,11 +449,11 @@ file_analysis_loop = LoopAgent(
 
 
 def summary_instruction(readonly_context: ReadonlyContext) -> str:
-  """Dynamic instruction with release info."""
-  start_tag = readonly_context.state.get("start_tag", "unknown")
-  end_tag = readonly_context.state.get("end_tag", "unknown")
+    """Dynamic instruction with release info."""
+    start_tag = readonly_context.state.get("start_tag", "unknown")
+    end_tag = readonly_context.state.get("end_tag", "unknown")
 
-  return f"""
+    return f"""
 # 1. Identity
 You are the Summary Agent, responsible for compiling all recommendations into
 a well-formatted GitHub issue.

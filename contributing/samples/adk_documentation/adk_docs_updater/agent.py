@@ -15,11 +15,9 @@
 import os
 import sys
 
-SAMPLES_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..")
-)
+SAMPLES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if SAMPLES_DIR not in sys.path:
-  sys.path.append(SAMPLES_DIR)
+    sys.path.append(SAMPLES_DIR)
 
 from adk_documentation.settings import CODE_OWNER
 from adk_documentation.settings import CODE_REPO
@@ -36,14 +34,14 @@ from adk_documentation.tools import search_local_git_repo
 from google.adk import Agent
 
 if IS_INTERACTIVE:
-  APPROVAL_INSTRUCTION = (
-      "Ask for user approval or confirmation for creating the pull request."
-  )
+    APPROVAL_INSTRUCTION = (
+        "Ask for user approval or confirmation for creating the pull request."
+    )
 else:
-  APPROVAL_INSTRUCTION = (
-      "**Do not** wait or ask for user approval or confirmation for creating"
-      " the pull request."
-  )
+    APPROVAL_INSTRUCTION = (
+        "**Do not** wait or ask for user approval or confirmation for creating"
+        " the pull request."
+    )
 
 root_agent = Agent(
     model="gemini-2.5-pro",

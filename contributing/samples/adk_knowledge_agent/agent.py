@@ -28,34 +28,34 @@ def citation_retrieval_after_model_callback(
     callback_context: CallbackContext,
     llm_response: LlmResponse,
 ) -> Optional[LlmResponse]:
-  """Callback function to retrieve citations after model response is generated."""
-  grounding_metadata = llm_response.grounding_metadata
-  if not grounding_metadata:
-    return None
+    """Callback function to retrieve citations after model response is generated."""
+    grounding_metadata = llm_response.grounding_metadata
+    if not grounding_metadata:
+        return None
 
-  content = llm_response.content
-  if not llm_response.content:
-    return None
+    content = llm_response.content
+    if not llm_response.content:
+        return None
 
-  parts = content.parts
-  if not parts:
-    return None
+    parts = content.parts
+    if not parts:
+        return None
 
-  # Add citations to the response as JSON objects.
-  parts.append(types.Part(text="References:\n"))
-  for grounding_chunk in grounding_metadata.grounding_chunks:
-    retrieved_context = grounding_chunk.retrieved_context
-    if not retrieved_context:
-      continue
+    # Add citations to the response as JSON objects.
+    parts.append(types.Part(text="References:\n"))
+    for grounding_chunk in grounding_metadata.grounding_chunks:
+        retrieved_context = grounding_chunk.retrieved_context
+        if not retrieved_context:
+            continue
 
-    citation = {
-        "title": retrieved_context.title,
-        "uri": retrieved_context.uri,
-        "snippet": retrieved_context.text,
-    }
-    parts.append(types.Part(text=json.dumps(citation)))
+        citation = {
+            "title": retrieved_context.title,
+            "uri": retrieved_context.uri,
+            "snippet": retrieved_context.text,
+        }
+        parts.append(types.Part(text=json.dumps(citation)))
 
-  return LlmResponse(content=types.Content(parts=parts))
+    return LlmResponse(content=types.Content(parts=parts))
 
 
 root_agent = LlmAgent(
